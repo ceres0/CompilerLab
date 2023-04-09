@@ -10,6 +10,9 @@ class Lex(object):
             return True
         return False
 
+    def Reset(self):
+        self.state = 0
+
     def Recongnize(self, instr): # instr: input str
         len1 = len(instr)
         flag = True
@@ -18,6 +21,7 @@ class Lex(object):
             if self.state == -1:
                 break
         print(instr, 'yes' if flag else 'no')
+        self.Reset()
 
 if __name__ == '__main__':
     dicts = []
