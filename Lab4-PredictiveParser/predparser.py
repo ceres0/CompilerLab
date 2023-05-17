@@ -27,13 +27,15 @@ class PredParser:
                     for prod in self.grammar[nonterminal]:
                         if prod[0] == terminal or prod[0] in self.grammar.keys():
                             self.pred_table[(nonterminal, terminal)] = prod
+            print(self.first[nonterminal])
             if 'epsilon' in self.first[nonterminal]:
+                print('eee')
                 for terminal in self.follow[nonterminal]:
                     self.pred_table[(nonterminal, terminal)
                                     ] = self.grammar[nonterminal]
 
     def parse(self, input_str):
-        stack = ['$', 'S']
+        stack = ['$', 'L']
         while stack[-1] == '$' and input_str == '':
             top = stack[-1]
             term = self.get_term(input_str)
@@ -61,7 +63,7 @@ class PredParser:
         while len(str) > 0 and str[0] == ' ':
             str = str[1:]
         for c in str:
-            if c in self.term or c == ' ':
+            if c in self.terms or c == ' ':
                 break
             else:
                 term += c
@@ -76,28 +78,29 @@ class PredParser:
 
 # 示例用法
 grammar = {
-    'S': [['E']],
-    'E': [['T', '+', 'E'], ['T', '-', 'E'], ['T']],
-    'T': [['F', '*', 'T'], ['F', '/', 'T'], ['F']],
+    'L': [['id', '=', 'E']],
+    'E': [['F', 'E1']],
+    'E1': [['+', 'F', 'E1'], ['-', 'F', 'E1'], 'epsilon'],
     'F': [['(', 'E', ')'], ['id']]
 }
 
 first = {
-    'S': {'id', '('},
-    'E': {'id', '(', '+', '-'},
-    'T': {'id', '(', '*', '/'},
+    'L': {'id'},
+    'E': {'id', '('},
+    'E1': {'+', '-'},
     'F': {'id', '('}
 }
 
 follow = {
-    'S': {'$', ')'},
+    'L': {'$'},
     'E': {'$', ')'},
-    'T': {'+', '-', '$', ')'},
-    'F': {'*', '/', '+', '-', '$', ')'}
+    'E1': {'$', ')'},
+    'F': {'+', '-', '$', ')'}
 }
 
-terms = {'+', '-', '*', '/', '(', ')', 'id', '$'}
+terms = {'+', '-', '(', ')', 'id', '$'}
 
 parser = PredParser(grammar, first, follow, terms)
 parser.generate_pred_table()
 print(parser.pred_table)
+parser.parse('id=id+id')
